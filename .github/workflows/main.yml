@@ -1,0 +1,38 @@
+name: Unzip Uploaded Archive
+
+on:
+  workflow_dispatch: # Allows you to run this manually from the Actions tab
+
+jobs:
+  unzip-archive:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Grants permission to commit changes back to the repo
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract ZIP file
+        run: |
+          # CHANGE 'family-feud.zip' to the actual name of your uploaded zip file
+          ZIP_FILE="family-feud.zip"
+          
+          if [ -f "$ZIP_FILE" ]; then
+            echo "Extracting $ZIP_FILE..."
+            unzip -o "$ZIP_FILE"
+            
+            # Optional: Delete the zip file from the repository after extraction
+            rm "$ZIP_FILE"
+          else
+            echo "Error: $ZIP_FILE not found in the root directory!"
+            exit 1
+          fi
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto-unzip archive via GitHub Actions" || echo "No changes to commit"
+          git push
